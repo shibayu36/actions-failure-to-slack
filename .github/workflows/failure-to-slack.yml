@@ -1,0 +1,24 @@
+name: Run job and notify failure to Slack
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  Job:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Random exit
+      run: exit $(($RANDOM%2))
+    - name: Notify slack when job failed
+      if: ${{ failure() }}
+      uses: slackapi/slack-github-action@v1.17.0
+      with:
+        payload: |
+          {
+            "url": "${{github.server_url}}/${{github.repository}}/actions/runs/${{github.run_id}}"
+          }
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
